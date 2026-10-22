@@ -54,7 +54,7 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING, Any
 
-from shelfsentry.data.contracts import InspectionReport
+from shelfsentry.data.contracts import EvaluationResult, InspectionReport
 from shelfsentry.data.storage import (
     MEDIA_REF_SCHEME,
     HistoryQuery,
@@ -118,6 +118,7 @@ _ATTR_MANIFEST = "slots"  # {slot_label: media_ref} map for a manifest item
 _RT_REPORT = "report"
 _RT_JOB = "job"
 _RT_MANIFEST = "manifest"
+_RT_EVAL = "eval"
 
 #: Default lifetime (seconds) for a minted presigned upload URL (Req 18.3).
 DEFAULT_PRESIGN_EXPIRY_SECONDS = 900  # 15 minutes
@@ -533,3 +534,45 @@ class AwsStorageAdapter:
         if doc is None:
             return None
         return JobRecord.model_validate_json(doc)
+
+    # -- evaluation records (DynamoDB) ----------------------------------------
+
+    def save_eval(self, result: EvaluationResult) -> None:
+        """Persist a measured ``EvaluationResult`` as an item (Req 25.4).
+
+        Stores the record's own canonical JSON verbatim under record_type
+        ``eval`` keyed by ``eval_run_id``. Nothing here derives or alters a
+        metric; it is a faithful store of a measured-only record.
+        """
+        rid = _sanitize_record_id(result.eval_run_id, what="eval")
+        self._put_doc_item(_RT_EVAL, rid, result.canonical_json())
+
+    def get_eval(self, eval_run_id: str) -> EvaluationResult | None:
+        """Load the stored evaluation record for ``eval_run_id``, or ``None``."""
+        try:
+            rid = _sanitize_record_id(eval_run_id, what="eval")
+        except InvalidMediaRef:
+            return None
+        doc = self._get_doc_item(_RT_EVAL, rid)
+        if doc is None:
+            return None
+        return EvaluationResult.model_validate_json(doc)
+
+    def list_evals(self) -> list[EvaluationResult]:
+        """Return all stored evaluation records (measured only; never fabricated).
+
+        Scans for ``eval`` items and deserializes each. An unreadable/foreign
+        item is skipped rather than invented. Newest first by ``eval_run_id``
+        is not meaningful (ids are random), so results are returned in scan
+        order; the UI renders each record's own measured fields.
+        """
+        out: list[EvaluationResult] = []
+        for item in self._scan_items(_RT_EVAL):
+            doc = item.get(_ATTR_DOC)
+            if not isinstance(doc, dict) or "S" not in doc:
+                continue
+            try:
+                out.append(EvaluationResult.model_validate_json(doc["S"]))
+            except ValueError:
+                continue
+        return out

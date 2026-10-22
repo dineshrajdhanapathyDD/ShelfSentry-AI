@@ -262,8 +262,33 @@ def test_list_evaluations_is_empty_not_fabricated(aws_env, fake_adapter, monkeyp
     monkeypatch.setattr(api_mod, "_build_adapter", lambda: fake_adapter)
     resp = api_mod.handler(_event("GET", "/evaluations"))
     assert resp["statusCode"] == 200
-    # No eval store wired -> honest empty list, never a fabricated record.
+    # No eval record persisted -> honest empty list, never a fabricated record.
     assert json.loads(resp["body"])["data"] == []
+
+
+def test_list_evaluations_serves_persisted_record(aws_env, fake_adapter, monkeypatch):
+    """Once a measured EvaluationResult is persisted, GET /evaluations serves
+    it (the AWS eval store is wired to the adapter, not the empty default)."""
+    from shelfsentry.data.contracts import EvaluationResult
+
+    fake_adapter.save_eval(
+        EvaluationResult(
+            eval_run_id="eval-live-1",
+            is_demo=True,
+            sample_count=8,
+            agent_decision_correctness=1.0,
+            latency_ms_p50=10.0,
+            latency_ms_p95=30.0,
+            documented_limitations=["synthetic labels"],
+        )
+    )
+    monkeypatch.setattr(api_mod, "_build_adapter", lambda: fake_adapter)
+    resp = api_mod.handler(_event("GET", "/evaluations"))
+    assert resp["statusCode"] == 200
+    data = json.loads(resp["body"])["data"]
+    assert len(data) == 1
+    assert data[0]["eval_run_id"] == "eval-live-1"
+    assert data[0]["measured_only"] is True
 
 
 def test_evidence_route_on_aws_adapter_is_not_found(aws_env, fake_adapter, monkeypatch):

@@ -580,3 +580,38 @@ def test_no_injected_clients_and_no_boto3_raises_clear_error_on_use(monkeypatch)
     # Construction already happened without error; only USE triggers the import.
     with pytest.raises(AwsClientUnavailable):
         a.get_report("anything")
+
+
+def test_eval_round_trip_and_list(adapter: AwsStorageAdapter) -> None:
+    """save_eval persists a measured EvaluationResult; get_eval/list_evals read
+    it back verbatim. Nothing is fabricated: an unsaved id returns None and an
+    empty table lists nothing."""
+    from shelfsentry.data.contracts import EvaluationResult
+
+    # Empty to start - honest empty state (no fabrication).
+    assert adapter.list_evals() == []
+    assert adapter.get_eval("eval-missing") is None
+
+    rec = EvaluationResult(
+        eval_run_id="eval-abc123",
+        is_demo=True,
+        sample_count=8,
+        false_positives=[],
+        false_negatives=[],
+        agent_decision_correctness=1.0,
+        latency_ms_p50=12.5,
+        latency_ms_p95=40.0,
+        documented_limitations=["synthetic labels"],
+    )
+    adapter.save_eval(rec)
+
+    got = adapter.get_eval("eval-abc123")
+    assert got is not None
+    assert got.eval_run_id == "eval-abc123"
+    assert got.sample_count == 8
+    assert got.agent_decision_correctness == 1.0
+    assert got.measured_only is True
+
+    listed = adapter.list_evals()
+    assert len(listed) == 1
+    assert listed[0].eval_run_id == "eval-abc123"

@@ -109,9 +109,35 @@ def _aws_runner(
     )
 
 
+class _AwsEvalStore:
+    """Adapt the AWS adapter's eval methods to the ``EvalStore`` protocol.
+
+    ``LocalApi`` expects an eval store exposing ``list_results()`` /
+    ``get_result(id)``; the AWS adapter exposes ``list_evals()`` / ``get_eval``.
+    This thin shim bridges the two names and returns measured records only (it
+    invents nothing - an absent record yields an empty list / None).
+    """
+
+    def __init__(self, adapter: AwsStorageAdapter) -> None:
+        self._adapter = adapter
+
+    def list_results(self) -> Any:
+        return self._adapter.list_evals()
+
+    def get_result(self, eval_run_id: str) -> Any:
+        return self._adapter.get_eval(eval_run_id)
+
+
 def _build_api(adapter: AwsStorageAdapter) -> LocalApi:
-    """Wire the handler set for AWS mode: AWS adapter + Bedrock-backed runner."""
-    return LocalApi(adapter, runner=_aws_runner, mode="aws")
+    """Wire the handler set for AWS mode: AWS adapter + Bedrock-backed runner.
+
+    The eval store reads measured EvaluationResult records persisted in the same
+    single table, so GET /evaluations serves real stored runs (and honestly
+    returns an empty list until one is recorded) - never a fabricated record.
+    """
+    return LocalApi(
+        adapter, runner=_aws_runner, mode="aws", eval_store=_AwsEvalStore(adapter)
+    )
 
 
 def _response(status: int, body: Any) -> dict[str, Any]:

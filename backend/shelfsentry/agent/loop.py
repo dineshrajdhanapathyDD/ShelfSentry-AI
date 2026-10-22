@@ -208,6 +208,22 @@ def run_agent_loop(
                 status="needs_review",
             )
 
+        if decision.action == "request_better_image":  # input too poor (Req 6.9)
+            # A terminal, NON-tool action: the agent is declaring the input
+            # insufficient to judge and asking for a higher-quality image. Like
+            # human-review escalation, it has no backing MCP tool, so it must
+            # terminate here (never reach _ACTION_TO_TOOL). It flags for review
+            # because an unresolved "need a better image" is not a clean,
+            # finding-backed conclusion (Req 6.9, 27.4).
+            return _finalize(
+                inspection_id=inspection_id,
+                mode=mode,
+                initial_finding_id=initial_finding_id,
+                trace=trace,
+                requires_human_review=True,
+                status="needs_review",
+            )
+
         # Validate args before execution (Req 6.4). On rejection, record a
         # rejected ToolExecution and finalize deterministically (documented
         # above): never execute, never spin.
@@ -376,6 +392,12 @@ def _recommendation(trace: list[TraceEntry], requires_human_review: bool) -> str
     last_action = decisions[-1].action if decisions else "finalize_report"
 
     if requires_human_review:
+        if last_action == "request_better_image":
+            return (
+                "Flagged for review: the agent judged the input image too poor "
+                "to assess reliably and requested a higher-quality image. No "
+                "out-of-stock condition is asserted; re-capture and re-run."
+            )
         return (
             "Flagged for human review: the agent found conflicting or "
             "insufficiently resolved evidence and is not asserting an "

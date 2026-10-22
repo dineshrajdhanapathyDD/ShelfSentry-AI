@@ -182,6 +182,45 @@ def test_multipart_parser_extracts_fields_and_file():
     assert parsed["media"]["type"] == "image/png"
 
 
+def test_multipart_create_passes_bytes_to_runner(aws_env, fake_adapter, monkeypatch):
+    """A real browser-style multipart PNG upload must reach the runner as
+    NON-EMPTY bytes (regression for the "media is required" server error)."""
+    monkeypatch.setattr(api_mod, "_build_adapter", lambda: fake_adapter)
+
+    captured = {}
+
+    def fake_runner(data, content_type, *, adapter, inspection_id=None, mode="aws"):
+        # Record what the handler forwarded, then return a minimal report-like
+        # object the envelope can serialize. We assert on the bytes, not vision.
+        captured["len"] = len(data)
+        captured["content_type"] = content_type
+        from shelfsentry.data.contracts import InspectionReport
+        return InspectionReport(
+            inspection_id=inspection_id or "insp-x",
+            mode="aws",
+            final_recommendation="stub",
+            requires_human_review=False,
+            initial_finding_id="f-1",
+            decision_trace=[],
+            supporting_evidence_refs=[],
+            created_at="2026-01-01T00:00:00+00:00",
+            status="complete",
+        )
+
+    # Inject the stub runner so no real OpenCV/Bedrock runs in this unit test.
+    monkeypatch.setattr(api_mod, "_build_api",
+                        lambda adapter: __import__("shelfsentry.api.handlers", fromlist=["LocalApi"]).LocalApi(adapter, runner=fake_runner, mode="aws"))
+
+    png = b"\x89PNG\r\n\x1a\n" + bytes(range(256)) * 4  # binary incl. CR/LF bytes
+    ct, b64 = _multipart({"content_type": "image/png"}, {"media": ("shelf.png", png, "image/png")})
+    resp = api_mod.handler(_event("POST", "/inspections", raw=b64, b64=True,
+                                  headers={"content-type": ct}))
+    assert resp["statusCode"] == 200, resp["body"]
+    # The exact bytes uploaded must have reached the runner (non-empty).
+    assert captured["len"] == len(png)
+    assert captured["content_type"] == "image/png"
+
+
 def test_get_missing_job_is_404(aws_env, fake_adapter, monkeypatch):
     monkeypatch.setattr(api_mod, "_build_adapter", lambda: fake_adapter)
     resp = api_mod.handler(_event("GET", "/jobs/job-does-not-exist"))

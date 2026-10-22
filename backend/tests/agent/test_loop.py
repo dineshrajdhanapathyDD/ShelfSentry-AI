@@ -183,6 +183,29 @@ def test_human_review_path_marks_needs_review() -> None:
     assert report.decision_trace[0].action == "request_human_review"
 
 
+def test_request_better_image_path_marks_needs_review() -> None:
+    """Regression: ``request_better_image`` is a terminal, NON-tool action.
+
+    Previously the loop fell through to ``_ACTION_TO_TOOL[decision.action]`` and
+    raised ``KeyError: 'request_better_image'`` (surfacing as an API 500 once a
+    real model picked that action for a poor-quality image). It must terminate
+    like human-review: no tool call, status ``needs_review``.
+    """
+    model = InjectedDecisionModel(
+        decisions=[{"action": "request_better_image", "args": {}}]
+    )
+    tools = FakeToolClient()
+
+    report = _run(model, tools)
+
+    assert report.status == "needs_review"
+    assert report.requires_human_review is True
+    assert tools.calls == []  # never reached a tool
+    assert len(report.decision_trace) == 1
+    assert report.decision_trace[0].action == "request_better_image"
+    assert "higher-quality image" in report.final_recommendation.lower()
+
+
 # ---------------------------------------------------------------------------
 # crop-then-finalize path with ordered trace (Req 6.3, 6.5, 6.10)
 # ---------------------------------------------------------------------------

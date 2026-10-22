@@ -163,40 +163,75 @@ def _content_type_header(event: dict[str, Any]) -> str:
     return str(headers.get("content-type", ""))
 
 
+def _extract_boundary(content_type_header: str) -> bytes | None:
+    """Pull the boundary token out of a multipart Content-Type header."""
+    for part in content_type_header.split(";"):
+        part = part.strip()
+        if part.lower().startswith("boundary="):
+            b = part[len("boundary="):].strip().strip('"')
+            return b.encode("utf-8") if b else None
+    return None
+
+
+def _parse_disposition(header_block: bytes) -> tuple[str | None, str | None, str | None]:
+    """Return (field_name, filename, content_type) from a part's header block."""
+    name: str | None = None
+    filename: str | None = None
+    ctype: str | None = None
+    for line in header_block.split(b"\r\n"):
+        try:
+            text = line.decode("utf-8", "replace")
+        except Exception:  # noqa: BLE001 - defensive
+            continue
+        low = text.lower()
+        if low.startswith("content-disposition:"):
+            for seg in text.split(";"):
+                seg = seg.strip()
+                if seg.lower().startswith("name="):
+                    name = seg[len("name="):].strip().strip('"')
+                elif seg.lower().startswith("filename="):
+                    filename = seg[len("filename="):].strip().strip('"')
+        elif low.startswith("content-type:"):
+            ctype = text.split(":", 1)[1].strip()
+    return name, filename, ctype
+
+
 def _parse_multipart(body: bytes, content_type_header: str) -> dict[str, Any]:
-    """Parse a multipart/form-data body into {field: value|{'filename','bytes','type'}}.
+    """Parse a multipart/form-data body by splitting on the declared boundary.
 
-    Uses the stdlib email parser (``cgi`` was removed in Python 3.13) to split
-    the parts by the declared boundary. Only the fields the frontend sends are
-    needed: ``media`` (file), ``content_type``, ``example_mode``, ``inspection_id``.
+    A direct byte-level splitter (no email/cgi dependency). This preserves
+    binary file bodies (e.g. PNG bytes) exactly, which the email-policy parser
+    did not reliably do for real browser FormData routed through API Gateway.
+    Only the fields the frontend sends are needed: ``media`` (file),
+    ``content_type``, ``example_mode``, ``inspection_id``.
     """
-    from email.parser import BytesParser  # noqa: PLC0415 - stdlib, local import
-    from email.policy import HTTP  # noqa: PLC0415
-
-    # Rebuild a minimal MIME document the email parser understands.
-    header = f"Content-Type: {content_type_header}\r\nMIME-Version: 1.0\r\n\r\n".encode()
-    msg = BytesParser(policy=HTTP).parsebytes(header + body)
+    boundary = _extract_boundary(content_type_header)
+    if not boundary:
+        return {}
+    delim = b"--" + boundary
 
     out: dict[str, Any] = {}
-    if not msg.is_multipart():
-        return out
-    for part in msg.iter_parts():
-        disp = part.get_content_disposition()
-        if disp != "form-data":
+    # Split on the boundary; drop the preamble and the closing "--" epilogue.
+    for chunk in body.split(delim):
+        if chunk in (b"", b"--", b"--\r\n", b"\r\n"):
             continue
-        name = part.get_param("name", header="content-disposition")
+        # A part is "\r\n<headers>\r\n\r\n<content>\r\n"; trim the leading CRLF.
+        if chunk.startswith(b"\r\n"):
+            chunk = chunk[2:]
+        if chunk.endswith(b"\r\n"):
+            chunk = chunk[:-2]
+        sep = chunk.find(b"\r\n\r\n")
+        if sep == -1:
+            continue
+        header_block = chunk[:sep]
+        content = chunk[sep + 4:]
+        name, filename, ctype = _parse_disposition(header_block)
         if not name:
             continue
-        filename = part.get_filename()
-        payload = part.get_payload(decode=True) or b""
-        if filename:
-            out[name] = {
-                "filename": filename,
-                "bytes": payload,
-                "type": part.get_content_type(),
-            }
+        if filename is not None:
+            out[name] = {"filename": filename, "bytes": content, "type": ctype or ""}
         else:
-            out[name] = payload.decode("utf-8", "replace").strip()
+            out[name] = content.decode("utf-8", "replace").strip()
     return out
 
 

@@ -1,0 +1,690 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  ShelfSentry AI - AWS Mode infrastructure (single CloudFormation template; no
+  CDK, no Terraform). Provisions private/encrypted S3 media storage, one
+  single-table DynamoDB store for inspection results/decision-trace, async job
+  records and the media manifest, a container-image API handler Lambda behind an
+  API Gateway HTTP API, a container-image async worker Lambda for longer video
+  jobs, CloudWatch log groups with explicit retention plus a basic errors alarm,
+  and least-privilege IAM per Lambda. No secrets are embedded. Both Lambdas run
+  the SAME ECR image (passed via EcrImageUri); each selects its handler through
+  ImageConfig.Command. The image carries the real OpenCV 5 + agent + MCP code
+  and must exist in ECR before this stack is deployed (see docs/aws-deployment.md).
+
+Metadata:
+  AWSToolsMetrics:
+    AWSAgentToolkit: aws-cloudformation@3
+  com.aws.cloudformation.Context:
+    why: >-
+      Implements ShelfSentry AI Requirements 18-20. AWS Mode is a verified
+      follow-on to the primary local/mock pipeline; this template is the only
+      infrastructure definition (Req 18.1).
+    must:
+      - All stateful resources (S3 bucket, DynamoDB tables) use Retain deletion
+        and update-replace policies for data safety (Req 20.3). The S3 bucket
+        must be emptied before a stack delete can remove it.
+      - IAM is least privilege per Lambda; no wildcard admin (Req 20.1).
+      - No secrets are embedded anywhere in this template (Req 20.2).
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Environment and naming
+        Parameters:
+          - Environment
+          - ResourceNamePrefix
+      - Label:
+          default: Storage
+        Parameters:
+          - MediaBucketName
+          - ResultsTableName
+          - MediaUploadPrefix
+          - MediaRetentionDays
+      - Label:
+          default: Compute
+        Parameters:
+          - EcrImageUri
+          - ApiLambdaMemoryMb
+          - ApiLambdaTimeoutSeconds
+          - WorkerLambdaMemoryMb
+          - WorkerLambdaTimeoutSeconds
+      - Label:
+          default: Observability
+        Parameters:
+          - LogRetentionDays
+      - Label:
+          default: Agent (Bedrock)
+        Parameters:
+          - BedrockModelId
+
+Parameters:
+  Environment:
+    Type: String
+    Description: Deployment environment name used in resource naming and tags.
+    Default: dev
+    AllowedValues:
+      - dev
+      - staging
+      - prod
+
+  ResourceNamePrefix:
+    Type: String
+    Description: >-
+      Prefix for configurable resource names. Combined with the stack name and
+      environment to keep names unique across stacks and environments.
+    Default: shelfsentry
+    AllowedPattern: "^[a-z][a-z0-9-]{1,32}$"
+    ConstraintDescription: >-
+      Lowercase letters, digits and hyphens; 2-33 chars; must start with a
+      letter.
+
+  MediaBucketName:
+    Type: String
+    Description: >-
+      Optional explicit name for the media S3 bucket. Leave empty to let
+      CloudFormation generate a unique name from the stack name (Req 18.5).
+    Default: ""
+
+  ResultsTableName:
+    Type: String
+    Description: >-
+      Optional explicit name for the inspection results / decision-trace
+      DynamoDB table. Leave empty to derive from the prefix and environment
+      (Req 18.5).
+    Default: ""
+
+
+  MediaUploadPrefix:
+    Type: String
+    Description: >-
+      S3 key prefix under which inspection media is uploaded. The API Lambda is
+      granted s3:PutObject scoped to this prefix so it can mint presigned PUT
+      URLs (Req 18.3).
+    Default: inspections/
+    AllowedPattern: "^[A-Za-z0-9!_.*'()/-]+/$"
+    ConstraintDescription: Must be a non-empty S3 key prefix ending with "/".
+
+  MediaRetentionDays:
+    Type: Number
+    Description: >-
+      Lifecycle rule: number of days after which inspection media objects (and
+      noncurrent versions) expire. Data-retention control for the media bucket.
+    Default: 90
+    MinValue: 1
+    MaxValue: 3650
+
+  ApiLambdaMemoryMb:
+    Type: Number
+    Description: Memory (MB) for the synchronous API handler Lambda (Req 19.2).
+    Default: 512
+    MinValue: 128
+    MaxValue: 10240
+
+  ApiLambdaTimeoutSeconds:
+    Type: Number
+    Description: Timeout (seconds) for the synchronous API handler Lambda (Req 19.2).
+    Default: 29
+    MinValue: 1
+    MaxValue: 900
+
+  WorkerLambdaMemoryMb:
+    Type: Number
+    Description: >-
+      Memory (MB) for the async worker Lambda that processes longer video jobs
+      (Req 19.2, 19.4).
+    Default: 2048
+    MinValue: 128
+    MaxValue: 10240
+
+  WorkerLambdaTimeoutSeconds:
+    Type: Number
+    Description: >-
+      Timeout (seconds) for the async worker Lambda. Defaults high to allow
+      longer video analysis (Req 19.2, 19.4). Capped at Lambda's 900s (15 min)
+      maximum; a workload that can exceed 15 minutes must move to ECS/Fargate
+      (see docs/aws-deployment.md), not raise this beyond 900.
+    Default: 600
+    MinValue: 1
+    MaxValue: 900
+
+  EcrImageUri:
+    Type: String
+    Description: >-
+      ECR image URI (including the immutable @sha256 digest or a tag) for the
+      ShelfSentry container image that both Lambda functions run. Build and push
+      this image on your machine FIRST (see docs/aws-deployment.md); the stack
+      will not deploy the functions until the image exists in ECR. The image
+      carries the real OpenCV 5 pipeline + agent + MCP code; one image serves
+      both functions, which select their handler via ImageConfig.Command.
+    AllowedPattern: "^[0-9]{12}\\.dkr\\.ecr\\.[a-z0-9-]+\\.amazonaws\\.com/.+(:.+|@sha256:[0-9a-f]{64})$"
+    ConstraintDescription: >-
+      Must be a full ECR image URI, e.g.
+      466742534146.dkr.ecr.us-east-1.amazonaws.com/shelfsentry:latest or one
+      pinned by @sha256 digest.
+
+  LogRetentionDays:
+    Type: Number
+    Description: >-
+      CloudWatch Logs retention (days) applied to every Lambda log group
+      (Req 19.3).
+    Default: 30
+    AllowedValues:
+      - 1
+      - 3
+      - 5
+      - 7
+      - 14
+      - 30
+      - 60
+      - 90
+      - 120
+      - 150
+      - 180
+      - 365
+      - 400
+      - 545
+      - 731
+      - 1096
+      - 1827
+      - 3653
+
+  BedrockModelId:
+    Type: String
+    Description: >-
+      Amazon Bedrock model id used by the agent decision path (invoked through
+      the model-agnostic Converse API, so any Converse-capable text model works).
+      Plain configuration, NOT a secret (Req 20.2). Default is Amazon Nova Lite,
+      which is available on-demand in this account/region and verified to return
+      the agent's JSON action shape via Converse. The worker Lambda is granted
+      bedrock:InvokeModel scoped to this model only (Req 20.1).
+    Default: amazon.nova-lite-v1:0
+
+Conditions:
+  HasMediaBucketName: !Not [!Equals [!Ref MediaBucketName, ""]]
+  HasResultsTableName: !Not [!Equals [!Ref ResultsTableName, ""]]
+
+Resources:
+  # ---------------------------------------------------------------------------
+  # Storage: private, encrypted, public-access-blocked S3 bucket (Req 18.2)
+  # ---------------------------------------------------------------------------
+  MediaBucket:
+    Type: AWS::S3::Bucket
+    # Retain so inspection media survives stack deletion (Req 20.3). The bucket
+    # must be emptied of objects before CloudFormation can delete it.
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Metadata:
+      com.aws.cloudformation.Context:
+        why: >-
+          Stores inspection media (images/videos) and annotated outputs for AWS
+          Mode. Large uploads arrive via presigned PUT URLs (Req 18.3).
+        must:
+          - Private with all public access blocked and encrypted at rest
+            (Req 18.2).
+          - Retain on stack delete; empty objects first (Req 20.3).
+    Properties:
+      BucketName: !If
+        - HasMediaBucketName
+        - !Ref MediaBucketName
+        - !Sub "${ResourceNamePrefix}-${Environment}-media-${AWS::AccountId}-${AWS::Region}"
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+            BucketKeyEnabled: true
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      LifecycleConfiguration:
+        Rules:
+          - Id: ExpireInspectionMedia
+            Status: Enabled
+            Prefix: !Ref MediaUploadPrefix
+            ExpirationInDays: !Ref MediaRetentionDays
+            NoncurrentVersionExpiration:
+              NoncurrentDays: !Ref MediaRetentionDays
+            AbortIncompleteMultipartUpload:
+              DaysAfterInitiation: 7
+      Tags:
+        - Key: Project
+          Value: ShelfSentryAI
+        - Key: Environment
+          Value: !Ref Environment
+
+  # Deny any non-TLS (plaintext HTTP) access to the bucket and its objects.
+  MediaBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref MediaBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: DenyInsecureTransport
+            Effect: Deny
+            Principal: "*"
+            Action: "s3:*"
+            Resource:
+              - !GetAtt MediaBucket.Arn
+              - !Sub "${MediaBucket.Arn}/*"
+            Condition:
+              Bool:
+                "aws:SecureTransport": "false"
+
+  # ---------------------------------------------------------------------------
+  # Storage: DynamoDB tables (Req 18.4, 19.4, 20.3)
+  # ---------------------------------------------------------------------------
+  # Inspection status / results / decision-trace records.
+  # Access patterns:
+  #   - get a report by inspection_id            -> PK = inspection_id
+  #   - list/scan inspection history             -> Scan (small demo data set)
+  ResultsTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Metadata:
+      com.aws.cloudformation.Context:
+        why: >-
+          Holds inspection status, final InspectionReport results and the
+          ordered Decision_Trace, keyed by inspection_id (Req 18.4).
+        must:
+          - PAY_PER_REQUEST billing; Retain on delete (Req 20.3).
+    Properties:
+      TableName: !If
+        - HasResultsTableName
+        - !Ref ResultsTableName
+        - !Sub "${ResourceNamePrefix}-${Environment}-results"
+      BillingMode: PAY_PER_REQUEST
+      # Single-table design: the AwsStorageAdapter keys every item (report, job,
+      # media manifest) by a generic string partition key "pk" whose value is
+      # "<record_type>#<id>" (see backend/shelfsentry/data/aws_storage.py,
+      # _ATTR_PK). The table MUST declare that same key attribute name.
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+      Tags:
+        - Key: Project
+          Value: ShelfSentryAI
+        - Key: Environment
+          Value: !Ref Environment
+
+  # NOTE: a separate jobs table was intentionally removed. The shipped AWS
+  # adapter (shelfsentry/data/aws_storage.py) is SINGLE-TABLE: inspection
+  # reports, async job records, and the media manifest all live in ResultsTable,
+  # distinguished by a record_type attribute and a "<record_type>#<id>" pk. A
+  # future, higher-scale job index (GSI by inspection_id) would be added back
+  # here together with the adapter change that queries it (Req 19.4, 19.5).
+
+  # ---------------------------------------------------------------------------
+  # CloudWatch log groups with explicit retention (Req 19.3)
+  # Named to match Lambda convention so the functions log into them.
+  # ---------------------------------------------------------------------------
+  ApiLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${ResourceNamePrefix}-${Environment}-api"
+      RetentionInDays: !Ref LogRetentionDays
+
+  WorkerLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${ResourceNamePrefix}-${Environment}-worker"
+      RetentionInDays: !Ref LogRetentionDays
+
+  # ---------------------------------------------------------------------------
+  # IAM: least-privilege execution role for the API handler Lambda (Req 20.1)
+  # Scoped to: its own log group, the media bucket/prefix (incl. s3:PutObject
+  # for presigned PUT URLs, Req 18.3), the single DynamoDB table, and
+  # asynchronous invoke of the worker function only.
+  # ---------------------------------------------------------------------------
+  ApiLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${ResourceNamePrefix}-${Environment}-api-role"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: api-logs
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub "${ApiLambdaLogGroup.Arn}:*"
+        - PolicyName: api-media-rw
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              # s3:PutObject enables minting presigned PUT URLs (Req 18.3);
+              # GetObject/HeadObject to read media and annotated outputs.
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                Resource: !Sub "${MediaBucket.Arn}/${MediaUploadPrefix}*"
+        - PolicyName: api-ddb-rw
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                Resource:
+                  # Single-table design: reports + jobs + manifest in ResultsTable.
+                  - !GetAtt ResultsTable.Arn
+        - PolicyName: api-invoke-worker
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              # The API hands longer video jobs to the worker asynchronously
+              # (InvocationType=Event). Scoped to the single worker function
+              # (Req 20.1); no broad lambda:InvokeFunction.
+              - Effect: Allow
+                Action: lambda:InvokeFunction
+                Resource: !GetAtt WorkerLambda.Arn
+        - PolicyName: api-bedrock-invoke
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              # The API Lambda runs SYNCHRONOUS image/example inspections itself,
+              # so it needs the same scoped Bedrock access as the worker: the
+              # agent's PRIMARY decision path is Bedrock (Converse). Without this
+              # the loop silently degrades to the deterministic fallback on every
+              # call. Scoped to the single configured foundation model (Req 20.1).
+              - Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                  - bedrock:InvokeModelWithResponseStream
+                Resource: !Sub "arn:${AWS::Partition}:bedrock:${AWS::Region}::foundation-model/${BedrockModelId}"
+
+  # ---------------------------------------------------------------------------
+  # IAM: least-privilege execution role for the async worker Lambda (Req 20.1)
+  # Adds scoped bedrock:InvokeModel for the configured model only (Req 20.1).
+  # ---------------------------------------------------------------------------
+  WorkerLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${ResourceNamePrefix}-${Environment}-worker-role"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: worker-logs
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub "${WorkerLambdaLogGroup.Arn}:*"
+        - PolicyName: worker-media-rw
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                Resource: !Sub "${MediaBucket.Arn}/${MediaUploadPrefix}*"
+        - PolicyName: worker-ddb-rw
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:Query
+                Resource:
+                  # Single-table design: reports + jobs + manifest in ResultsTable.
+                  - !GetAtt ResultsTable.Arn
+        - PolicyName: worker-bedrock-invoke
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              # Scoped to the single configured foundation model (Req 20.1).
+              - Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                  - bedrock:InvokeModelWithResponseStream
+                Resource: !Sub "arn:${AWS::Partition}:bedrock:${AWS::Region}::foundation-model/${BedrockModelId}"
+
+  # ---------------------------------------------------------------------------
+  # Compute: API handler Lambda (Req 19.1, 19.2). Container image from ECR;
+  # ImageConfig.Command selects the API handler entry point.
+  # ---------------------------------------------------------------------------
+  ApiLambda:
+    Type: AWS::Lambda::Function
+    DependsOn:
+      - ApiLambdaLogGroup
+    Metadata:
+      com.aws.cloudformation.Context:
+        why: >-
+          Synchronous inspection API handler behind the HTTP API. Mints
+          presigned S3 PUT URLs, writes/reads DynamoDB, and enqueues async jobs
+          (Req 19.1).
+        must:
+          - Explicit Timeout and MemorySize set from parameters (Req 19.2).
+    Properties:
+      FunctionName: !Sub "${ResourceNamePrefix}-${Environment}-api"
+      Description: ShelfSentry AI synchronous API handler (container image).
+      PackageType: Image
+      Role: !GetAtt ApiLambdaRole.Arn
+      MemorySize: !Ref ApiLambdaMemoryMb
+      Timeout: !Ref ApiLambdaTimeoutSeconds
+      Architectures:
+        - arm64
+      Code:
+        ImageUri: !Ref EcrImageUri
+      ImageConfig:
+        # Select the API handler entry point from the shared image.
+        Command:
+          - shelfsentry.awslambda.api.handler
+      Environment:
+        Variables:
+          # Non-secret config only; the mode switch reads SHELFSENTRY_* and fails
+          # loudly if any required key is missing (Req 17.2). No secrets here.
+          SHELFSENTRY_MODE: aws
+          SHELFSENTRY_S3_BUCKET: !Ref MediaBucket
+          SHELFSENTRY_DDB_TABLE: !Ref ResultsTable
+          SHELFSENTRY_AWS_REGION: !Ref "AWS::Region"
+          SHELFSENTRY_KEY_PREFIX: !Ref MediaUploadPrefix
+          SHELFSENTRY_BEDROCK_MODEL_ID: !Ref BedrockModelId
+          # Name of the worker function the API invokes asynchronously for video.
+          WORKER_FUNCTION_NAME: !Sub "${ResourceNamePrefix}-${Environment}-worker"
+      Tags:
+        - Key: Project
+          Value: ShelfSentryAI
+        - Key: Environment
+          Value: !Ref Environment
+
+  # ---------------------------------------------------------------------------
+  # Compute: async worker Lambda for longer video jobs (Req 19.4)
+  # Container image (shared with the API) selected by ImageConfig.Command.
+  # ---------------------------------------------------------------------------
+  WorkerLambda:
+    Type: AWS::Lambda::Function
+    DependsOn:
+      - WorkerLambdaLogGroup
+    Metadata:
+      com.aws.cloudformation.Context:
+        why: >-
+          Async worker entry point for longer video jobs. Reads media from S3,
+          runs the vision + agent pipeline, and records job status in DynamoDB
+          for polling (Req 19.4, 19.5).
+        must:
+          - Explicit Timeout and MemorySize set from parameters (Req 19.2).
+    Properties:
+      FunctionName: !Sub "${ResourceNamePrefix}-${Environment}-worker"
+      Description: ShelfSentry AI async video worker (container image).
+      PackageType: Image
+      Role: !GetAtt WorkerLambdaRole.Arn
+      MemorySize: !Ref WorkerLambdaMemoryMb
+      Timeout: !Ref WorkerLambdaTimeoutSeconds
+      Architectures:
+        - arm64
+      Code:
+        ImageUri: !Ref EcrImageUri
+      ImageConfig:
+        # Select the worker handler entry point from the shared image.
+        Command:
+          - shelfsentry.awslambda.worker.handler
+      Environment:
+        Variables:
+          # Single-table adapter: reports, async job records, and the media
+          # manifest all live in ResultsTable keyed by record_type (see
+          # shelfsentry/data/aws_storage.py). Non-secret config only (Req 17.2).
+          SHELFSENTRY_MODE: aws
+          SHELFSENTRY_S3_BUCKET: !Ref MediaBucket
+          SHELFSENTRY_DDB_TABLE: !Ref ResultsTable
+          SHELFSENTRY_AWS_REGION: !Ref "AWS::Region"
+          SHELFSENTRY_KEY_PREFIX: !Ref MediaUploadPrefix
+          SHELFSENTRY_BEDROCK_MODEL_ID: !Ref BedrockModelId
+      Tags:
+        - Key: Project
+          Value: ShelfSentryAI
+        - Key: Environment
+          Value: !Ref Environment
+
+  # ---------------------------------------------------------------------------
+  # API Gateway HTTP API wired to the API Lambda (Req 19.1)
+  # ---------------------------------------------------------------------------
+  HttpApi:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: !Sub "${ResourceNamePrefix}-${Environment}-http-api"
+      Description: ShelfSentry AI inspection HTTP API.
+      ProtocolType: HTTP
+      CorsConfiguration:
+        AllowMethods:
+          - GET
+          - POST
+          - OPTIONS
+        AllowHeaders:
+          - content-type
+        AllowOrigins:
+          - "*"
+
+  HttpApiIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      Description: Proxy integration to the API handler Lambda.
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt ApiLambda.Arn
+      PayloadFormatVersion: "2.0"
+
+  HttpApiDefaultRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: "$default"
+      Target: !Sub "integrations/${HttpApiIntegration}"
+
+  HttpApiStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId: !Ref HttpApi
+      StageName: "$default"
+      AutoDeploy: true
+      Description: Auto-deployed default stage.
+
+  # Permit API Gateway to invoke the API Lambda (scoped to this API, Req 20.1).
+  ApiLambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref ApiLambda
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*"
+
+  # ---------------------------------------------------------------------------
+  # CloudWatch: basic alarm on API Lambda errors (Req 19.3)
+  # ---------------------------------------------------------------------------
+  ApiLambdaErrorsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${ResourceNamePrefix}-${Environment}-api-errors"
+      AlarmDescription: >-
+        Fires when the API handler Lambda reports function errors within the
+        evaluation window.
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref ApiLambda
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+
+Outputs:
+  ApiUrl:
+    Description: Base invoke URL of the inspection HTTP API (Req 19.1).
+    Value: !GetAtt HttpApi.ApiEndpoint
+    Export:
+      Name: !Sub "${AWS::StackName}-ApiUrl"
+
+  MediaBucketName:
+    Description: Name of the private encrypted media S3 bucket (Req 18.2).
+    Value: !Ref MediaBucket
+    Export:
+      Name: !Sub "${AWS::StackName}-MediaBucketName"
+
+  MediaUploadPrefix:
+    Description: S3 key prefix used for presigned media uploads (Req 18.3).
+    Value: !Ref MediaUploadPrefix
+
+  ResultsTableName:
+    Description: DynamoDB table holding inspection results and decision trace (Req 18.4).
+    Value: !Ref ResultsTable
+    Export:
+      Name: !Sub "${AWS::StackName}-ResultsTableName"
+
+
+  ApiLambdaName:
+    Description: Name of the synchronous API handler Lambda.
+    Value: !Ref ApiLambda
+
+  WorkerLambdaName:
+    Description: Name of the async worker Lambda.
+    Value: !Ref WorkerLambda
+
+  BedrockModelId:
+    Description: Bedrock model id configured for the agent decision path (not a secret).
+    Value: !Ref BedrockModelId

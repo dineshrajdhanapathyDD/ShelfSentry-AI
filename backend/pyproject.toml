@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "shelfsentry"
+version = "0.1.0"
+description = "ShelfSentry AI: agentic retail shelf inspection (OpenCV 5 + bounded Strands active-perception loop + restricted MCP tools)"
+readme = "README.md"
+requires-python = ">=3.11"
+
+# -----------------------------------------------------------------------------
+# Runtime dependencies - EXACT pins (Req 26.4).
+#
+# Every version below was verified to resolve/install and import in this
+# environment (Python 3.13.15, win32). See the OpenCV note.
+#
+# OpenCV 5 (Req 2.1, 26.4):
+#   Package:          opencv-python==5.0.0.93
+#   Runtime cv2.__version__: 5.0.0   <-- the exact OpenCV 5 version used.
+#   opencv-python 5.0.0.93 is the only 5.x wheel currently published on PyPI
+#   and it installs on this environment's Python. We pin it exactly and do NOT
+#   substitute an OpenCV 4 release. If a future environment cannot resolve a
+#   5.x wheel, that is a hard failure to surface honestly, not a reason to drop
+#   to OpenCV 4 (the system also verifies cv2.__version__ at startup; see
+#   shelfsentry/vision/version.py in task 1.4).
+# -----------------------------------------------------------------------------
+dependencies = [
+    "opencv-python==5.0.0.93",  # cv2.__version__ == 5.0.0 (OpenCV 5; verified)
+    "numpy==2.2.6",
+    "pydantic==2.12.5",         # Pydantic v2
+    "strands-agents==1.48.0",   # Strands Agents SDK
+    "mcp==1.28.1",              # Python MCP SDK
+]
+
+[project.optional-dependencies]
+# Test stack - EXACT pins (verified installed/importable in this environment).
+test = [
+    "pytest==9.1.1",
+    "hypothesis==6.170.2",      # property-based testing library
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["shelfsentry*"]
+
+# -----------------------------------------------------------------------------
+# Test runner configuration.
+#
+# Single-run execution only (Req: "no watch mode"):
+#   - pytest has no built-in watch mode; we intentionally do NOT depend on
+#     pytest-watch / pytest-xdist loop watchers. `pytest` runs once and exits.
+#   - `--strict-markers` / `--strict-config` keep runs deterministic and loud.
+#
+# Property tests run at >= 100 generated iterations each via the Hypothesis
+# "ci" profile loaded in tests/conftest.py (max_examples = 100). Individual
+# properties may raise this with their own @settings but never below 100.
+# -----------------------------------------------------------------------------
+[tool.pytest.ini_options]
+minversion = "9.0"
+testpaths = ["tests"]
+addopts = "-ra --strict-markers --strict-config"
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+filterwarnings = ["error"]

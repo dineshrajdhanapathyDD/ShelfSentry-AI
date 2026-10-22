@@ -1,0 +1,19 @@
+ShelfSentry AI - decision-trace transcript
+====================================================
+inspection_id        : insp-20261022-49a7db0c2d09
+mode                 : local
+status               : needs_review
+requires_human_review: True
+initial_finding_id   : insp-20261022-49a7db0c2d09-image
+trace entries        : 1
+
+Decision trace (in order):
+----------------------------------------------------
+[0] AGENT DECISION  iter=0  action=request_human_review  decided_by=fallback
+      rationale: Conflicting evidence: at least one region reads as clearly empty while another reads as clearly filled (disagreement >= conflict_margin 0.25); escalating to human review rather than guessing.
+
+Final recommendation:
+----------------------------------------------------
+Flagged for human review: the agent found conflicting or insufficiently resolved evidence and is not asserting an out-of-stock condition. A reviewer should confirm.
+
+Supporting evidence refs: []

@@ -1,0 +1,23 @@
+# ShelfSentry AI - Lambda container runtime dependencies (EXACT pins).
+#
+# Mirrors backend/requirements.txt runtime deps (NOT the test stack), plus
+# boto3 which the application lazy-imports for S3, DynamoDB, Bedrock (Converse),
+# and asynchronous Lambda invocation.
+#
+# OpenCV 5: opencv-python 5.0.0.93 -> cv2.__version__ == 5.0.0. The aarch64
+# manylinux wheel resolves on the arm64 Lambda base image. Do NOT substitute
+# OpenCV 4; the Dockerfile asserts cv2 major version == 5 at build time.
+
+# --- application runtime (mirror of requirements.txt) ---
+opencv-python==5.0.0.93
+numpy==2.2.6
+pydantic==2.12.5
+strands-agents==1.48.0
+mcp==1.28.1
+
+# --- AWS SDK (lazy-imported by the AWS adapter, Bedrock model, and handlers) ---
+# Pin boto3 exactly for reproducible images; boto3 pins its own compatible
+# botocore, so we do not pin botocore separately (a mismatched pair fails to
+# install). The Lambda base image bundles a boto3, but we install our own pin
+# so the image does not drift with the base image over time.
+boto3==1.40.0

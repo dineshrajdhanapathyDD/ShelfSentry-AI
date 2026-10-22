@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Tooling caches
+.pytest_cache/
+.hypothesis/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local scratch stores written by the demo one-liner and evidence generator.
+# The committed, small evidence artifacts live under ../docs/evidence/ instead.
+.shelfsentry-local/
+.shelfsentry-evidence/

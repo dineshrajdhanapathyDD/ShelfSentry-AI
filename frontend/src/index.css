@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+/* Base, accessibility-minded styles. Tailwind v4 is configured CSS-first via
+   the @import above; project tokens/utilities can be added here later. */
+
+:root {
+  color-scheme: light dark;
+}
+
+/* Always-available visible focus outline for keyboard users (WCAG 2.4.7). */
+:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* Skip link: visually hidden until focused, then revealed at the top-left so a
+   keyboard user can jump straight to <main> (WCAG 2.4.1). */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: 0.5rem 1rem;
+  background: #1d4ed8;
+  color: #ffffff;
+  border-radius: 0 0 0.375rem 0;
+}
+
+.skip-link:focus {
+  left: 0;
+}

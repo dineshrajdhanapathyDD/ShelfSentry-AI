@@ -1,0 +1,11 @@
+# Build context is the backend/ directory. Keep the image lean and reproducible.
+tests/
+.pytest_cache/
+.hypothesis/
+.shelfsentry-local/
+.shelfsentry-evidence/
+**/__pycache__/
+**/*.pyc
+.gitignore
+README.md
+pyproject.toml

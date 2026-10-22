@@ -1,0 +1,891 @@
+{
+  "pbtResults": {
+    "14.2 Write property test for honest reporting": {
+      "status": "passed",
+      "lastRunTimestamp": 1792696090399
+    }
+  },
+  "executionHistory": {
+    "1.1 Create backend project structure and pinned dependencies": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678182999
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678297537
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678599103
+      }
+    ],
+    "1.2 Define the seven typed Pydantic v2 contracts": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678184133
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678605851
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678932569
+      }
+    ],
+    "1.4 Implement typed configuration and OpenCV 5 startup version verification": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678184374
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678606853
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678933288
+      }
+    ],
+    "2.1 Implement input validation": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678184575
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678949656
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792679535925
+      }
+    ],
+    "2.2 Implement preprocessing": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678184698
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678950937
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792679536707
+      }
+    ],
+    "3.1 Implement shelf-region, edge, contour, and morphology analysis": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678184821
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792679548518
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792680558802
+      }
+    ],
+    "3.2 Implement scoring, uncertainty, caveats, and finding assembly": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678184967
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792680566717
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792680925627
+      }
+    ],
+    "3.3 Implement annotation rendering": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678185163
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792680933710
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792681369053
+      }
+    ],
+    "3.4 Implement video frame sampling and per-frame analysis": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678185288
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792680934590
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792681368083
+      }
+    ],
+    "3.5 Implement region inspection and frame comparison entry points": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678185412
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792680935613
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792681367245
+      }
+    ],
+    "5. Checkpoint - vision pipeline verified": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678185555
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792681951921
+      }
+    ],
+    "6.1 Define the DecisionModel interface and the five-action set": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678185669
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792681952942
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792682746945
+      }
+    ],
+    "6.2 Implement the deterministic FallbackPolicy": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678185781
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792682752976
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792683293697
+      }
+    ],
+    "7.1 Implement tool-argument validation": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678185908
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792683302464
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792684754112
+      }
+    ],
+    "7.2 Implement the bounded agent loop with decision trace and finalization": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678186029
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792684761081
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792685614035
+      }
+    ],
+    "7.3 Wire the Bedrock decision path with recorded fallback": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678186175
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792685646333
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792688062394
+      }
+    ],
+    "8. Checkpoint - agent loop verified": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678186301
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792688529169
+      }
+    ],
+    "9.1 Implement the MCP server and four tools reusing vision functions": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678186418
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792688530229
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792689853156
+      }
+    ],
+    "9.2 Implement MCP tool-schema argument validation": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678186602
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792689861461
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792690823751
+      }
+    ],
+    "10.1 Implement the StorageAdapter protocol and LocalStorageAdapter": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678186719
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792690830918
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792691566216
+      }
+    ],
+    "10.2 Wire the mode-agnostic end-to-end local inspection flow": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678186823
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792691621100
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792692614212
+      }
+    ],
+    "11.1 Implement local API handlers with versioned responses": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678186954
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792692625252
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792693124170
+      }
+    ],
+    "11.2 Implement the fail-loud mode configuration switch": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678187078
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792692625888
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792693125155
+      }
+    ],
+    "12. Checkpoint - local/mock demo reachable end to end": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678187212
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792693553801
+      }
+    ],
+    "13.1 Scaffold the frontend and typed API client": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678187350
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792693563179
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792694611809
+      }
+    ],
+    "13.2 Implement the Inspection page": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678187470
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792694618942
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792695041986
+      }
+    ],
+    "13.3 Implement the Results page": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678187618
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792694619776
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792695042856
+      }
+    ],
+    "13.4 Implement the History page": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678187744
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792694620927
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792695043804
+      }
+    ],
+    "13.5 Implement the Evaluation page": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678187866
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792694621744
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792695044950
+      }
+    ],
+    "14.1 Implement the labeled evaluation set and runner": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678187986
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792695056447
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792695673752
+      }
+    ],
+    "18. Final checkpoint - full system verified": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678188111
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792697335206
+      }
+    ],
+    "1. Project scaffolding, typed data contracts, and OpenCV 5 version verification": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678933495
+      }
+    ],
+    "1.3 Write property tests for contract serialization and boundary validation": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678952090
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792679538089
+      }
+    ],
+    "1.5 Write unit test for OpenCV 5 version verification": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792678953043
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792679538850
+      }
+    ],
+    "2. Vision pipeline: validation and preprocessing": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792679536839
+      }
+    ],
+    "2.3 Write property tests for input validation": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792679549058
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792680559337
+      }
+    ],
+    "3. Vision pipeline: OpenCV 5 analysis, scoring, annotation, and video": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792681369173
+      }
+    ],
+    "4.1 Write candidate-region field and caveat property tests": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792681384828
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792681943286
+      }
+    ],
+    "4.2 Write reproducibility and annotation-match property tests": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792681386202
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792681942511
+      }
+    ],
+    "4.3 Write video sampling property tests": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792681387154
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792681940220
+      }
+    ],
+    "4.4 Write unit tests for normal and adverse conditions": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792681388373
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792681941136
+      }
+    ],
+    "4. Vision test suite": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792681940358
+      }
+    ],
+    "6. Agent loop: decision model abstraction and fallback policy": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792683293856
+      }
+    ],
+    "6.3 Write property tests for the fallback policy": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792683303003
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792684755117
+      }
+    ],
+    "7. Agent loop: tool-arg validation, bounded loop, and trace": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792688062553
+      }
+    ],
+    "7.4 Write property tests for loop bounds, causality, trace, and fallback": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792688070605
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792688520327
+      }
+    ],
+    "7.5 Write unit tests for agent causality, safety, and trace integrity": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792688071462
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792688519550
+      }
+    ],
+    "9. MCP server with restricted vision tools": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792690824165
+      }
+    ],
+    "9.3 Write MCP argument-validation and security-boundary tests": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792690831622
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792691565644
+      }
+    ],
+    "10. Local storage adapter and end-to-end local pipeline": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792692614513
+      }
+    ],
+    "10.3 Write an integration test for the local end-to-end pipeline": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792692623899
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792693123239
+      }
+    ],
+    "11. Local API layer and mode configuration switch": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792693125437
+      }
+    ],
+    "11.3 Write property and example tests for API versioning and mode switch": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792693182731
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792693552909
+      }
+    ],
+    "13. Frontend application": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792695045170
+      }
+    ],
+    "13.6 Write frontend component and accessibility tests": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792695054981
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792695674641
+      }
+    ],
+    "15.1 Author the CloudFormation template.yaml": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792695057336
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792695675589
+      }
+    ],
+    "16.1 Implement the AwsStorageAdapter": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792695058523
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792695672468
+      }
+    ],
+    "16. AWS integration": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792695672721
+      }
+    ],
+    "14. Reproducible evaluation set and honest reporting": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792695674009
+      }
+    ],
+    "15. CloudFormation infrastructure template": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792695675914
+      }
+    ],
+    "16.2 Wire AWS Mode decision path and async worker with retry/failure handling": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792695696504
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792696564992
+      }
+    ],
+    "15.2 Write CloudFormation template validation and security-constraint tests": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792695697911
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792696565632
+      }
+    ],
+    "14.2 Write property test for honest reporting": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792695698934
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792696567716
+      }
+    ],
+    "17.1 Write README and architecture documentation": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792695699814
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792696567070
+      }
+    ],
+    "17. Documentation and submission artifacts": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792696567322
+      }
+    ],
+    "16.3 Write AWS integration, API, and infrastructure-security tests": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792696576556
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792697234371
+      }
+    ],
+    "17.2 Write evaluation, limitations, and security docs plus pinned-dependency notes": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792696577919
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792697235189
+      }
+    ],
+    "17.3 Assemble submission artifacts and teardown guide": [
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792696578725
+      },
+      {
+        "executionId": "7c639920-acaf-49a1-8691-85712c9b50b0",
+        "chatSessionId": "sess_34e6dd63-1fc8-4c91-ab23-1c7bbd88a218",
+        "timestamp": 1792697233136
+      }
+    ]
+  }
+}

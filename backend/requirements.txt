@@ -1,0 +1,20 @@
+# ShelfSentry AI backend - EXACT pinned dependency versions (Req 26.4).
+# Mirror of [project.dependencies] + [project.optional-dependencies.test]
+# in pyproject.toml. Every version was verified to install and import in
+# this environment (Python 3.13.15, win32).
+#
+# OpenCV 5 note: opencv-python 5.0.0.93 reports cv2.__version__ == 5.0.0 (the
+# exact OpenCV 5 version used). It is the only published 5.x wheel on PyPI and
+# installs here. Do NOT substitute OpenCV 4; startup also verifies the runtime
+# version (shelfsentry/vision/version.py, task 1.4).
+
+# --- runtime ---
+opencv-python==5.0.0.93
+numpy==2.2.6
+pydantic==2.12.5
+strands-agents==1.48.0
+mcp==1.28.1
+
+# --- test stack ---
+pytest==9.1.1
+hypothesis==6.170.2

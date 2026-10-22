@@ -1,0 +1,47 @@
+# AWS Amplify Hosting build spec for the ShelfSentry AI frontend.
+#
+# This hosts ONLY the static React/Vite SPA (frontend/dist) on Amplify Hosting's
+# CI/CD + CDN. It does NOT provision any backend: the API (API Gateway + Lambda +
+# DynamoDB + S3 + Bedrock) is deployed separately and exclusively via
+# CloudFormation (infrastructure/template.yaml). Amplify only builds the client
+# and points it at that API through VITE_API_BASE_URL.
+#
+# Monorepo note: the frontend lives in frontend/, so this uses the Amplify
+# monorepo "applications" form with appRoot: frontend. All build/cache paths
+# below are RELATIVE to that appRoot.
+#
+# Required Amplify environment variable (set in the Amplify console under
+# App settings -> Environment variables, or via the CLI - NOT committed here):
+#   VITE_API_BASE_URL = https://<apiId>.execute-api.<region>.amazonaws.com
+#     (the CloudFormation "ApiUrl" stack output; a public HTTPS endpoint, not a
+#      secret). Vite inlines it at build time, so it must exist BEFORE preBuild.
+#
+# SPA deep-link routing (/results/{id}, /history, ...) is handled by a rewrite
+# rule, not this file: add a 200-rewrite of </^[^.]+$|\.(?!...)> -> /index.html
+# in App settings -> Rewrites and redirects (see docs/aws-deployment.md).
+
+version: 1
+applications:
+  - appRoot: frontend
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            # Fail early and loudly if the API URL was not configured, rather
+            # than shipping a build that silently points at localhost.
+            - 'if [ -z "$VITE_API_BASE_URL" ]; then echo "ERROR: VITE_API_BASE_URL is not set. Set it to the CloudFormation ApiUrl output in Amplify env vars."; exit 1; fi'
+            # Reproducible install from the committed lockfile (pinned versions).
+            - npm ci
+        build:
+          commands:
+            # Runs "tsc --noEmit && vite build" (see frontend/package.json).
+            # Vite inlines VITE_API_BASE_URL into the bundle during this step.
+            - npm run build
+      artifacts:
+        # Vite's default output directory (relative to appRoot: frontend).
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*

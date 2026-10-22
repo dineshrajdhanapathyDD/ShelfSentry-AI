@@ -147,7 +147,7 @@ export function InspectionPage({ client }: InspectionPageProps = {}) {
               fileError ? `${fileHintId} ${fileErrorId}` : fileHintId
             }
             aria-invalid={fileError ? true : undefined}
-            className="block w-full text-sm"
+            className="block w-full text-sm text-gray-800 dark:text-gray-100 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 p-2 file:mr-3 file:rounded-md file:border-0 file:bg-blue-700 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-blue-800 file:cursor-pointer"
           />
           <p id={fileHintId} className="text-sm text-gray-500">
             Accepted types: {ACCEPTED_CONTENT_TYPES.join(', ')}. Maximum size{' '}
@@ -160,7 +160,7 @@ export function InspectionPage({ client }: InspectionPageProps = {}) {
               role="alert"
               className="text-sm font-medium text-red-700 dark:text-red-400"
             >
-              <span aria-hidden="true">⚠ </span>
+              <span aria-hidden="true">âš  </span>
               {fileError.message}
             </p>
           ) : null}
@@ -260,7 +260,7 @@ function SuccessState({
         id="inspection-success-heading"
         className="text-base font-medium text-green-900 dark:text-green-100"
       >
-        <span aria-hidden="true">✓ </span>
+        <span aria-hidden="true">âœ“ </span>
         Inspection complete
       </h2>
       <dl className="mt-2 text-sm text-green-900 dark:text-green-100">
@@ -320,7 +320,7 @@ function ErrorState({
         id="inspection-error-heading"
         className="text-base font-medium text-red-800 dark:text-red-300"
       >
-        <span aria-hidden="true">⚠ </span>
+        <span aria-hidden="true">âš  </span>
         Inspection failed
       </h2>
       <p className="mt-2 text-sm text-red-800 dark:text-red-300">

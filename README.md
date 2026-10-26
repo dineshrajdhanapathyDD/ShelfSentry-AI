@@ -8,6 +8,11 @@ vision with a bounded active-perception agent loop.**
 - **Web app (AWS Amplify):** https://main.d3521ybmmu2jz6.amplifyapp.com/
 - **API health check:** https://q5a59gmnw9.execute-api.us-east-1.amazonaws.com/health
 
+## Architecture
+
+<img width="1601" height="1041" alt="shelfsenty v1 drawio" src="https://github.com/user-attachments/assets/d5d890f6-16b0-4d8d-9b30-faed9d1d4f32" />
+
+
 Open the web app and click **Run example (bundled sample)** to run a real
 inspection on AWS (OpenCV 5 vision + an Amazon Bedrock-driven active-perception
 agent loop), then open **Results** to see the decision trace, **History** for

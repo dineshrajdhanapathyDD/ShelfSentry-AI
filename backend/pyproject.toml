@@ -8,6 +8,7 @@ version = "0.1.0"
 description = "ShelfSentry AI: agentic retail shelf inspection (OpenCV 5 + bounded Strands active-perception loop + restricted MCP tools)"
 readme = "README.md"
 requires-python = ">=3.11"
+license = "MIT"
 
 # -----------------------------------------------------------------------------
 # Runtime dependencies - EXACT pins (Req 26.4).

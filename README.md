@@ -395,3 +395,11 @@ In AWS mode (provisioned only by `template.yaml`):
   evaluation detail, documented limitations, and the security boundary.
 - `.kiro/specs/shelfsentry-ai-active-perception/` - the full requirements,
   design, and task plan.
+
+## License
+
+This project is licensed under the MIT License - a permissive license that lets
+anyone use, modify, and distribute the code with attribution. See the
+[`LICENSE`](LICENSE) file for the full text.
+
+Copyright (c) 2026 Dinesh Raj Dhanapathy.

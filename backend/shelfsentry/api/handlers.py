@@ -108,6 +108,21 @@ class _EmptyEvalStore:
         return None
 
 
+def _supports_media(adapter: Any) -> bool:
+    """True if ``adapter`` structurally supports the media ops the evidence
+    resolver needs (``get_media_ref_for`` / ``get_media`` / ``put_media``).
+
+    Both the local and AWS storage adapters implement these, so the Results
+    page can fetch annotated evidence in either mode. A partial or fake adapter
+    missing any of them yields ``False`` and the handler returns an honest
+    "not available" error rather than fabricating evidence (Req 9, 27.2).
+    """
+    return all(
+        callable(getattr(adapter, name, None))
+        for name in ("get_media_ref_for", "get_media", "put_media")
+    )
+
+
 class _AnnotatedEvidence:
     """A small, serialization-friendly descriptor for stored annotated evidence.
 
@@ -119,16 +134,34 @@ class _AnnotatedEvidence:
     object (not a contract) because it is transport data, not a core contract.
     """
 
-    __slots__ = ("inspection_id", "finding_id", "ref", "data", "byte_length")
+    __slots__ = (
+        "inspection_id",
+        "finding_id",
+        "ref",
+        "data",
+        "byte_length",
+        "primary_finding",
+    )
 
     def __init__(
-        self, inspection_id: str, finding_id: str, ref: str, data: bytes
+        self,
+        inspection_id: str,
+        finding_id: str,
+        ref: str,
+        data: bytes,
+        primary_finding: dict[str, Any] | None = None,
     ) -> None:
         self.inspection_id = inspection_id
         self.finding_id = finding_id
         self.ref = ref
         self.data = data
         self.byte_length = len(data)
+        # Optional projection of the initial VisionFinding (candidate_regions,
+        # uncertainty_interpretations, opencv_version) derived from a REAL
+        # OpenCV analysis of the stored image. None when it cannot be derived;
+        # never fabricated (Req 27.2). The Results page renders region overlays
+        # and per-region detail from this when present.
+        self.primary_finding = primary_finding
 
 
 class LocalApi:
@@ -168,10 +201,10 @@ class LocalApi:
         self._sample_provider = sample_provider or _default_sample_provider
         # A resolver over the adapter lets the evidence handler fetch stored
         # media by inspection-scoped id without handling a path (Req 9).
+        # Build the resolver for ANY adapter that structurally supports media
+        # ops (local AND AWS), so annotated evidence is served in AWS mode too.
         self._resolver = (
-            StorageMediaResolver(adapter)
-            if isinstance(adapter, LocalStorageAdapter)
-            else None
+            StorageMediaResolver(adapter) if _supports_media(adapter) else None
         )
 
     # -- create_inspection ---------------------------------------------------
@@ -338,9 +371,59 @@ class LocalApi:
                 mode=self._mode,
                 field="finding_id",
             )
+        # Best-effort: derive the candidate-region projection from a REAL OpenCV
+        # analysis of the stored image so the Results page can show region
+        # overlays + per-region detail. Never fabricated; None on any failure,
+        # in which case the image still renders and the regions section keeps
+        # its honest empty state (Req 27.2).
+        primary_finding = self._derive_primary_finding(inspection_id)
         return self._ok(
-            _AnnotatedEvidence(inspection_id, finding_id, ref, data)
+            _AnnotatedEvidence(
+                inspection_id, finding_id, ref, data, primary_finding
+            )
         )
+
+    def _derive_primary_finding(self, inspection_id: str) -> dict[str, Any] | None:
+        """Return a {candidate_regions, uncertainty_interpretations,
+        opencv_version} projection from a real analysis of the stored image.
+
+        Reuses the shared vision functions (the same ones the MCP dispatcher
+        uses), so the regions returned are measured and reproducible, never
+        invented. Returns ``None`` if the resolver/image is unavailable or the
+        analysis cannot be produced - the caller treats that as "no regions
+        inlined" rather than an error.
+        """
+        if self._resolver is None:
+            return None
+        try:
+            get_image = getattr(self._resolver, "get_image", None)
+            if not callable(get_image):
+                return None
+            image_bytes = get_image(inspection_id)
+            from shelfsentry.config.settings import VisionConfig
+            from shelfsentry.vision.analyze import analyze_image_bytes
+            from shelfsentry.vision.scoring import build_finding
+
+            cfg = VisionConfig()
+            analysis = analyze_image_bytes(image_bytes, cfg)
+            finding = build_finding(
+                analysis,
+                inspection_id=inspection_id,
+                finding_id=f"{inspection_id}-image",
+                annotated_output_ref=f"evidence://{inspection_id}/{inspection_id}-image",
+                source="image",
+                cfg=cfg,
+            )
+            doc = finding.model_dump(mode="json")
+            return {
+                "candidate_regions": doc.get("candidate_regions", []),
+                "uncertainty_interpretations": doc.get(
+                    "uncertainty_interpretations", {}
+                ),
+                "opencv_version": doc.get("opencv_version", "unknown"),
+            }
+        except Exception:  # noqa: BLE001 - best-effort projection, never fatal
+            return None
 
     # -- internal envelope helpers -------------------------------------------
 

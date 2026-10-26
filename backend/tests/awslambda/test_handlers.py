@@ -332,15 +332,37 @@ def test_list_evaluations_serves_persisted_record(aws_env, fake_adapter, monkeyp
     assert data[0]["measured_only"] is True
 
 
-def test_evidence_route_on_aws_adapter_is_not_found(aws_env, fake_adapter, monkeypatch):
-    # The AWS adapter does not back the evidence resolver; the handler returns a
-    # structured not_found rather than fabricating bytes (honest limitation).
+def test_evidence_route_absent_evidence_is_not_found(aws_env, fake_adapter, monkeypatch):
+    # With Fix A the AWS adapter DOES back the evidence resolver, so a 404 now
+    # means "no evidence stored for this id" (honest), not "adapter unsupported".
+    # Nothing is fabricated when evidence is absent.
     monkeypatch.setattr(api_mod, "_build_adapter", lambda: fake_adapter)
     resp = api_mod.handler(
         _event("GET", "/inspections/insp-1/evidence/find-1")
     )
     assert resp["statusCode"] == 404
     assert json.loads(resp["body"])["error"]["code"] == "not_found"
+
+
+def test_evidence_served_in_aws_mode_when_stored(aws_env, fake_adapter, monkeypatch):
+    # Fix A: once annotated bytes are stored for a finding, the AWS-mode handler
+    # serves them (base64) via the evidence route - no longer a blanket 404.
+    monkeypatch.setattr(api_mod, "_build_adapter", lambda: fake_adapter)
+    png = b"\x89PNG\r\n\x1a\nANNOTATED-BYTES"
+    # put_evidence stores under the finding's evidence slot, exactly as the
+    # pipeline does; the resolver reads it back by the same inspection-scoped id.
+    from shelfsentry.data.storage import StorageMediaResolver
+
+    StorageMediaResolver(fake_adapter).put_evidence("insp-ev", "insp-ev-image", png)
+    resp = api_mod.handler(
+        _event("GET", "/inspections/insp-ev/evidence/insp-ev-image")
+    )
+    assert resp["statusCode"] == 200, resp["body"]
+    data = json.loads(resp["body"])["data"]
+    assert data["finding_id"] == "insp-ev-image"
+    assert data["byte_length"] == len(png)
+    # Bytes are returned base64; decoding them reproduces the stored image.
+    assert base64.b64decode(data["data_base64"]) == png
 
 
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")

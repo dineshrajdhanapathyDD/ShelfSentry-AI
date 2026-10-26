@@ -515,19 +515,14 @@ function LoadedResults(props: {
   const status = statusPresentation(report);
   const annotatedUrl = evidenceDataUrl(evidence);
 
-  // Regions + interpretations come from the primary (initial) finding when the
-  // backend inlines it on the evidence descriptor; otherwise we show the trace
-  // and recommendation and note that region detail is referenced, not inlined.
-  const finding = report as unknown as {
-    primary_finding?: {
-      candidate_regions: CandidateRegion[];
-      uncertainty_interpretations: Record<string, string>;
-      opencv_version: string;
-    };
-  };
-  const regions = finding.primary_finding?.candidate_regions ?? [];
-  const interpretations = finding.primary_finding?.uncertainty_interpretations ?? {};
-  const openCvVersion = finding.primary_finding?.opencv_version ?? 'unknown';
+  // Regions + interpretations come from the primary (initial) finding which the
+  // backend inlines on the evidence descriptor (derived from a real OpenCV
+  // analysis of the stored image). When absent, we show the trace and
+  // recommendation and keep an honest "no regions inlined" state.
+  const regions = evidence?.primary_finding?.candidate_regions ?? [];
+  const interpretations =
+    evidence?.primary_finding?.uncertainty_interpretations ?? {};
+  const openCvVersion = evidence?.primary_finding?.opencv_version ?? 'unknown';
 
   return (
     <div className="mt-4 space-y-8">

@@ -356,17 +356,18 @@ def _evidence_response(env: Any) -> dict[str, Any]:
     if not getattr(env, "ok", False):
         return _response(_status_for(env), env)
     ev = env.data
-    payload = {
-        "apiVersion": env.apiVersion,
-        "mode": env.mode,
-        "data": {
-            "inspection_id": ev.inspection_id,
-            "finding_id": ev.finding_id,
-            "ref": ev.ref,
-            "byte_length": ev.byte_length,
-            "data_base64": base64.b64encode(ev.data).decode("ascii"),
-        },
+    data = {
+        "inspection_id": ev.inspection_id,
+        "finding_id": ev.finding_id,
+        "ref": ev.ref,
+        "byte_length": ev.byte_length,
+        "data_base64": base64.b64encode(ev.data).decode("ascii"),
     }
+    # Pass through the optional candidate-region projection when present (Fix B).
+    primary_finding = getattr(ev, "primary_finding", None)
+    if primary_finding is not None:
+        data["primary_finding"] = primary_finding
+    payload = {"apiVersion": env.apiVersion, "mode": env.mode, "data": data}
     return _response(200, payload)
 
 

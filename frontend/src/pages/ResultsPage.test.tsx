@@ -110,10 +110,9 @@ function makeReport(overrides: Partial<InspectionReport> = {}): InspectionReport
     created_at: '2024-05-01T12:00:00Z',
     status: 'needs_review',
   };
-  // Inline the primary finding for region rendering (the page reads it when present).
-  return { ...base, ...overrides, primary_finding: PRIMARY_FINDING } as InspectionReport & {
-    primary_finding: VisionFinding;
-  };
+  // The report no longer inlines the finding; regions come from the evidence
+  // descriptor's primary_finding projection (see the EVIDENCE fixture).
+  return { ...base, ...overrides };
 }
 
 const EVIDENCE: AnnotatedEvidence = {
@@ -122,6 +121,12 @@ const EVIDENCE: AnnotatedEvidence = {
   ref: 'insp-123/annotated.png',
   byte_length: 4,
   data_base64: 'iVBORw0KGgo=',
+  // Regions are projected onto the evidence descriptor (real OpenCV analysis).
+  primary_finding: {
+    candidate_regions: PRIMARY_FINDING.candidate_regions,
+    uncertainty_interpretations: PRIMARY_FINDING.uncertainty_interpretations,
+    opencv_version: PRIMARY_FINDING.opencv_version,
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -253,7 +258,10 @@ describe('ResultsPage', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(/request failed/i);
   });
 
-  it('renders regions even when annotated evidence is unavailable', async () => {
+  it('shows an honest no-regions state when evidence is unavailable', async () => {
+    // Regions are projected onto the evidence descriptor. When evidence is
+    // unavailable the page must NOT fabricate regions; it shows the honest
+    // "no candidate regions" state and the placeholder annotated diagram.
     const client = stubClient({
       getInspection: vi.fn().mockResolvedValue(ok(makeReport(), 'v1', 'local')),
       getAnnotatedEvidence: vi
@@ -263,11 +271,14 @@ describe('ResultsPage', () => {
 
     renderPage(client);
 
-    // Falls back to an overlay diagram with an accessible label.
+    // The page still loads and shows the honest empty state (no fabrication).
     expect(
-      await screen.findByRole('img', { name: /highlighted candidate/i }),
+      await screen.findByText(/No candidate regions are inlined/i),
     ).toBeInTheDocument();
-    expect(screen.getByTestId('region-overlay-region-a')).toBeInTheDocument();
+    // No fabricated region overlay is rendered.
+    expect(
+      screen.queryByTestId('region-overlay-region-a'),
+    ).not.toBeInTheDocument();
   });
 
   it('has no automatically-detectable accessibility violations', async () => {

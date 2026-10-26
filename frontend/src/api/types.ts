@@ -261,4 +261,15 @@ export interface AnnotatedEvidence {
   byte_length: number;
   /** Base64-encoded annotated image bytes, when delivered inline. */
   data_base64?: string;
+  /**
+   * Optional projection of the initial VisionFinding, derived from a real
+   * OpenCV 5 analysis of the stored image. Present when the backend can derive
+   * it; absent (never fabricated) otherwise. The Results page renders region
+   * overlays and per-region detail from this when present.
+   */
+  primary_finding?: {
+    candidate_regions: CandidateRegion[];
+    uncertainty_interpretations: Record<string, string>;
+    opencv_version: string;
+  };
 }

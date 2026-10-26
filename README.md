@@ -18,6 +18,25 @@ API endpoint is a public HTTPS URL, not a secret.
 > backend via the single CloudFormation template in `infrastructure/template.yaml`.
 > See [`docs/aws-deployment.md`](docs/aws-deployment.md) for the full deploy flow.
 
+### Example results (real output from a live run)
+
+A sample inspection on the deployed stack produced the annotated output image
+plus three measured candidate regions. The values below are real measured
+output, not illustrative placeholders:
+
+| Region | Empty-space ratio (estimate) | Uncertainty value | Heuristic score |
+| --- | --- | --- | --- |
+| region_0000 | 77.8% | 0.428 | 0.654 |
+| region_0001 | 18.9% | 0.539 | 0.340 |
+| region_0002 | 22.3% | 0.446 | 0.354 |
+
+Each region carries a visual caveat, e.g. *"This region is an estimate of empty
+shelf space, not a confirmed out-of-stock condition. An empty-looking region
+may instead be shadow, occlusion, shelf dividers, or poor image quality."* The
+empty-space ratio is a measured value, the heuristic score is an ordinal (not a
+probability), and the uncertainty value has a documented interpretation - the
+system never asserts out-of-stock as proven.
+
 ShelfSentry AI looks at a retail shelf image (or short video), runs real
 classical computer vision to find candidate empty regions with *measured*
 metrics and *quantified uncertainty*, and then hands those findings to a

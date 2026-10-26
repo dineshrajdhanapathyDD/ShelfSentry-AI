@@ -381,14 +381,18 @@ def _create_inspection(
     caller may set ``async=true`` with a ``video/*`` type to hand the job to the
     worker Lambda and receive a queued JobRecord instead.
     """
-    ct_header = _content_type_header(event).lower()
+    # Keep the ORIGINAL-case content-type for parsing: a multipart boundary is
+    # case-sensitive (e.g. WebKit sends "----WebKitFormBoundaryXXXX"), so only
+    # the media-type check is case-folded. Lowercasing the whole header would
+    # corrupt the boundary and make every real browser upload fail to parse.
+    ct_header = _content_type_header(event)
     example_mode = False
     content_type: str | None = None
     media: bytes | None = None
     inspection_id: str | None = None
     want_async = False
 
-    if ct_header.startswith("multipart/form-data"):
+    if ct_header.lower().startswith("multipart/form-data"):
         fields = _parse_multipart(_raw_body_bytes(event), ct_header)
         example_mode = str(fields.get("example_mode", "")).lower() == "true"
         content_type = fields.get("content_type") or None

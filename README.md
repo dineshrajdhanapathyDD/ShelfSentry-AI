@@ -3,6 +3,21 @@
 **Agentic retail shelf inspection that pairs substantive OpenCV 5 computer
 vision with a bounded active-perception agent loop.**
 
+## Live demo
+
+- **Web app (AWS Amplify):** https://main.d3521ybmmu2jz6.amplifyapp.com/
+- **API health check:** https://q5a59gmnw9.execute-api.us-east-1.amazonaws.com/health
+
+Open the web app and click **Run example (bundled sample)** to run a real
+inspection on AWS (OpenCV 5 vision + an Amazon Bedrock-driven active-perception
+agent loop), then open **Results** to see the decision trace, **History** for
+stored runs, and **Evaluation** for measured results. No sign-in required. The
+API endpoint is a public HTTPS URL, not a secret.
+
+> Both URLs are deployed from this repo: the frontend via `amplify.yml`, the
+> backend via the single CloudFormation template in `infrastructure/template.yaml`.
+> See [`docs/aws-deployment.md`](docs/aws-deployment.md) for the full deploy flow.
+
 ShelfSentry AI looks at a retail shelf image (or short video), runs real
 classical computer vision to find candidate empty regions with *measured*
 metrics and *quantified uncertainty*, and then hands those findings to a

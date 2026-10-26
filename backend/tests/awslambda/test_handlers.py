@@ -167,6 +167,47 @@ def test_unknown_route_is_404(aws_env):
     assert json.loads(resp["body"])["error"]["code"] == "not_found"
 
 
+def test_example_mode_with_webkit_mixedcase_boundary(aws_env, fake_adapter, monkeypatch):
+    """Regression: a real browser sends a MIXED-CASE boundary (e.g.
+    ----WebKitFormBoundaryXXXX). The handler must not lowercase the boundary
+    when parsing, or every browser upload/example run fails with a spurious
+    'media is required' 400. Drives the full handler with a stub runner so no
+    OpenCV/Bedrock runs."""
+    monkeypatch.setattr(api_mod, "_build_adapter", lambda: fake_adapter)
+
+    def fake_runner(data, content_type, *, adapter, inspection_id=None, mode="aws"):
+        from shelfsentry.data.contracts import InspectionReport
+        return InspectionReport(
+            inspection_id=inspection_id or "insp-ex", mode="aws",
+            final_recommendation="stub", requires_human_review=False,
+            initial_finding_id="f-1", decision_trace=[],
+            supporting_evidence_refs=[], created_at="2026-01-01T00:00:00+00:00",
+            status="complete",
+        )
+
+    monkeypatch.setattr(
+        api_mod, "_build_api",
+        lambda adapter: __import__("shelfsentry.api.handlers", fromlist=["LocalApi"]).LocalApi(
+            adapter, runner=fake_runner, mode="aws"),
+    )
+
+    boundary = "----WebKitFormBoundaryAbCdEf123XYZ"  # deliberately mixed-case
+    body = (
+        f"--{boundary}\r\n"
+        'Content-Disposition: form-data; name="example_mode"\r\n\r\n'
+        "true\r\n"
+        f"--{boundary}--\r\n"
+    ).encode("utf-8")
+    ev = _event(
+        "POST", "/inspections",
+        raw=base64.b64encode(body).decode("ascii"), b64=True,
+        headers={"content-type": f"multipart/form-data; boundary={boundary}"},
+    )
+    resp = api_mod.handler(ev)
+    assert resp["statusCode"] == 200, resp["body"]
+    assert json.loads(resp["body"])["data"]["status"] == "complete"
+
+
 def test_multipart_parser_extracts_fields_and_file():
     ct, b64body = _multipart(
         {"content_type": "image/png", "example_mode": "false"},
